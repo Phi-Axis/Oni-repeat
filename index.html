@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>無限リピーター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Space+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #14151a;
+    --panel: #1e2027;
+    --panel-2: #23262e;
+    --groove: #0d0e12;
+    --amber: #e3a857;
+    --amber-dim: #7a5a30;
+    --green: #8fbf6d;
+    --green-dim: #3c4a35;
+    --text: #ede7dd;
+    --text-muted: #8a8d97;
+    --red: #c96a5a;
+  }
+  *{box-sizing:border-box;}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0;
+    min-height:100vh;
+    min-height:100dvh;
+    background:
+      radial-gradient(circle at 50% -10%, #23262e 0%, var(--bg) 55%);
+    color:var(--text);
+    font-family:'Noto Sans JP', sans-serif;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:16px 10px calc(24px + env(safe-area-inset-bottom));
+    -webkit-tap-highlight-color:transparent;
+    touch-action:manipulation;
+  }
+  .deck{
+    width:100%;
+    max-width:480px;
+    background:var(--panel);
+    border-radius:18px;
+    border:1px solid #33363f;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    overflow:hidden;
+  }
+  @media (max-width:420px){
+    body{ padding:10px 6px calc(20px + env(safe-area-inset-bottom)); }
+    .deck{ border-radius:14px; }
+    .brand{ padding:14px 16px 0; }
+    .reel-bay{ padding:16px 22px 6px; }
+    .reel{ width:72px; height:72px; }
+    .tape-path{ left:56px; right:56px; }
+    .window{ margin:6px 16px 14px; padding:12px 14px; }
+    .section{ padding:12px 16px; }
+    .transport{ gap:18px; padding:16px 16px 4px; }
+    .controls{ padding:6px 16px 18px; }
+    .loop-toggle{ padding:8px 16px 4px; }
+    .chip{ flex:1; text-align:center; }
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding:16px 20px 0;
+  }
+  .brand .name{
+    font-family:'Barlow Condensed', sans-serif;
+    font-weight:700;
+    letter-spacing:0.12em;
+    font-size:13px;
+    color:var(--text-muted);
+    text-transform:uppercase;
+  }
+  .brand .model{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--amber-dim);
+  }
+
+  /* Reels */
+  .reel-bay{
+    position:relative;
+    padding:22px 30px 8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .tape-path{
+    position:absolute;
+    left:70px; right:70px; top:52%;
+    height:2px;
+    background:linear-gradient(90deg, transparent, #3a3d47 15%, #3a3d47 85%, transparent);
+    z-index:0;
+  }
+  .reel{
+    width:92px; height:92px;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 50% 50%, var(--groove) 0 18%, #26282f 19% 32%, var(--groove) 33% 100%);
+    position:relative;
+    z-index:1;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 1px #383b45, 0 6px 14px rgba(0,0,0,0.4);
+    animation: spin 3s linear infinite;
+    animation-play-state: paused;
+  }
+  .reel.spinning{ animation-play-state: running; }
+  .reel::before{
+    content:'';
+    position:absolute;
+    width:100%; height:100%;
+    border-radius:50%;
+    background:
+      conic-gradient(from 0deg,
+        transparent 0 10deg, #40434e 10deg 14deg,
+        transparent 14deg 100deg, #40434e 100deg 104deg,
+        transparent 104deg 190deg, #40434e 190deg 194deg,
+        transparent 194deg 280deg, #40434e 280deg 284deg,
+        transparent 284deg 360deg);
+  }
+  .reel .hub{
+    width:14px; height:14px; border-radius:50%;
+    background:var(--amber);
+    box-shadow:0 0 8px rgba(227,168,87,0.5);
+    z-index:2;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* Window / track name + counter */
+  .window{
+    margin:6px 20px 18px;
+    background:var(--groove);
+    border-radius:10px;
+    padding:14px 16px;
+    border:1px solid #2a2c33;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+  }
+  .track-name{
+    font-size:13px;
+    color:var(--text);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    flex:1;
+  }
+  .track-name.empty{ color:var(--text-muted); }
+  .counter{
+    font-family:'Space Mono', monospace;
+    font-size:20px;
+    letter-spacing:0.06em;
+    color:var(--amber);
+    text-shadow:0 0 10px rgba(227,168,87,0.35);
+    flex-shrink:0;
+  }
+  .counter-label{
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:10px;
+    letter-spacing:0.14em;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    display:block;
+    text-align:right;
+  }
+
+  /* Upload / playlist */
+  .section{
+    padding:14px 20px;
+    border-top:1px solid #2a2c33;
+  }
+  .section-label{
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:11px;
+    letter-spacing:0.16em;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+
+  /* Script panel */
+  .section-label-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .section-label-row .section-label{ margin-bottom:0; }
+  .eye-btn{
+    width:34px; height:34px;
+    border-radius:8px;
+    border:1px solid #3a3d47;
+    background:var(--panel-2);
+    color:var(--text-muted);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .eye-btn svg{ width:17px; height:17px; }
+  .eye-btn.active{
+    color:var(--green);
+    border-color:var(--green);
+    background:rgba(143,191,109,0.08);
+  }
+  .script-wrap{
+    overflow:hidden;
+    max-height:220px;
+    transition:max-height 0.22s ease, opacity 0.18s ease;
+    opacity:1;
+  }
+  .script-wrap.collapsed{
+    max-height:0;
+    opacity:0;
+  }
+  #scriptArea{
+    width:100%;
+    min-height:120px;
+    resize:vertical;
+    background:var(--groove);
+    border:1px solid #2a2c33;
+    border-radius:10px;
+    padding:12px 14px;
+    color:var(--text);
+    font-family:'Noto Sans JP', sans-serif;
+    font-size:14px;
+    line-height:1.7;
+    outline:none;
+  }
+  #scriptArea:focus{ border-color:var(--amber-dim); }
+  #scriptArea::placeholder{ color:var(--text-muted); }
+  .script-saved-hint{
+    font-family:'Space Mono', monospace;
+    font-size:10.5px;
+    color:var(--text-muted);
+    margin-top:6px;
+    text-align:right;
+    min-height:14px;
+  }
+
+  /* Sets */
+  .set-hint{
+    font-family:'Space Mono', monospace;
+    font-size:10.5px;
+    color:var(--green);
+  }
+  .save-set-btn{
+    width:100%;
+    padding:12px 14px;
+    min-height:44px;
+    border-radius:10px;
+    border:1px solid var(--amber-dim);
+    background:rgba(227,168,87,0.06);
+    color:var(--amber);
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:14px;
+    letter-spacing:0.04em;
+    cursor:pointer;
+  }
+  .save-set-btn:active{ background:rgba(227,168,87,0.14); }
+  .sets-list{ max-height:none; }
+  .sets-list li{
+    cursor:default;
+  }
+  .sets-list .lname{ font-size:14px; color:var(--text); }
+  .set-count{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--text-muted);
+    flex-shrink:0;
+    margin-right:4px;
+  }
+  .set-load{
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:12.5px;
+    letter-spacing:0.04em;
+    padding:8px 12px;
+    min-height:36px;
+    border-radius:8px;
+    border:1px solid var(--green-dim);
+    background:rgba(143,191,109,0.08);
+    color:var(--green);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .set-load:active{ background:rgba(143,191,109,0.18); }
+
+  /* Modal (replaces native prompt/confirm which can be blocked in some webviews) */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(8,8,10,0.62);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+    z-index:1000;
+    opacity:0; pointer-events:none;
+    transition:opacity 0.15s ease;
+  }
+  .modal-overlay.open{ opacity:1; pointer-events:auto; }
+  .modal-box{
+    width:100%; max-width:340px;
+    background:var(--panel);
+    border:1px solid #33363f;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.5);
+  }
+  .modal-title{
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:16px;
+    letter-spacing:0.04em;
+    color:var(--text);
+    margin-bottom:6px;
+  }
+  .modal-msg{
+    font-size:13px;
+    color:var(--text-muted);
+    margin-bottom:12px;
+    line-height:1.5;
+  }
+  .modal-msg:empty{ display:none; }
+  .modal-input{
+    width:100%;
+    background:var(--groove);
+    border:1px solid #2a2c33;
+    border-radius:8px;
+    padding:12px 12px;
+    min-height:44px;
+    color:var(--text);
+    font-size:15px;
+    font-family:'Noto Sans JP', sans-serif;
+    outline:none;
+    margin-bottom:16px;
+  }
+  .modal-input:focus{ border-color:var(--amber-dim); }
+  .modal-actions{
+    display:flex; gap:10px;
+  }
+  .modal-btn{
+    flex:1;
+    padding:12px;
+    min-height:44px;
+    border-radius:8px;
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:14px;
+    letter-spacing:0.04em;
+    border:1px solid #3a3d47;
+    cursor:pointer;
+  }
+  .modal-cancel{
+    background:transparent;
+    color:var(--text-muted);
+  }
+  .modal-ok{
+    background:var(--amber);
+    color:#1a1509;
+    border-color:transparent;
+    font-weight:600;
+  }
+  .modal-ok.danger{
+    background:var(--red);
+  }
+  .dropzone{
+    border:1.5px dashed #3a3d47;
+    border-radius:10px;
+    padding:20px 16px;
+    min-height:48px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color 0.15s, background 0.15s;
+    font-size:14px;
+    line-height:1.5;
+    color:var(--text-muted);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dropzone:hover, .dropzone.drag{
+    border-color:var(--amber);
+    background:rgba(227,168,87,0.05);
+    color:var(--text);
+  }
+  .dropzone:active{ background:rgba(227,168,87,0.08); }
+  .dropzone input{ display:none; }
+
+  .playlist{
+    list-style:none; margin:10px 0 0; padding:0;
+    max-height:220px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .playlist li{
+    display:flex; align-items:center; gap:10px;
+    padding:12px 10px;
+    min-height:44px;
+    border-radius:8px;
+    font-size:14px;
+    cursor:pointer;
+    color:var(--text-muted);
+  }
+  .playlist li:hover{ background:var(--panel-2); }
+  .playlist li.active{
+    background:var(--panel-2);
+    color:var(--text);
+  }
+  .playlist li.active .idx{ color:var(--green); }
+  .playlist .idx{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    width:20px;
+    color:var(--text-muted);
+  }
+  .playlist .lname{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .playlist .del{
+    background:none; border:none; color:var(--text-muted);
+    cursor:pointer; font-size:17px; padding:6px 10px;
+    min-width:36px; min-height:36px;
+    border-radius:6px;
+  }
+  .playlist .del:hover{ color:var(--red); background:rgba(201,106,90,0.1); }
+  .empty-msg{ font-size:12px; color:var(--text-muted); padding:6px 2px; }
+
+  /* Transport */
+  .transport{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    padding:18px 20px 6px;
+  }
+  .btn-round{
+    width:52px; height:52px;
+    border-radius:50%;
+    border:1px solid #3a3d47;
+    background:var(--panel-2);
+    color:var(--text);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:transform 0.1s, border-color 0.15s;
+    flex-shrink:0;
+  }
+  .btn-round:hover{ border-color:var(--amber); }
+  .btn-round:active{ transform:scale(0.92); }
+  .btn-play{
+    width:72px; height:72px;
+    background:var(--amber);
+    color:#1a1509;
+    border:none;
+    box-shadow:0 6px 18px rgba(227,168,87,0.3);
+  }
+  .btn-play:hover{ border-color:transparent; filter:brightness(1.08); }
+  .btn-play svg, .btn-round svg{ width:20px; height:20px; }
+  .btn-play svg{ width:26px; height:26px; }
+
+  .loop-toggle{
+    display:flex; justify-content:center; gap:8px;
+    padding:10px 16px 4px;
+    flex-wrap:wrap;
+  }
+  .chip{
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:12.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:10px 14px;
+    min-height:40px;
+    border-radius:999px;
+    border:1px solid #3a3d47;
+    color:var(--text-muted);
+    cursor:pointer;
+    background:transparent;
+  }
+  .chip.on{
+    border-color:var(--green);
+    color:var(--green);
+    background:rgba(143,191,109,0.08);
+  }
+
+  /* Sliders */
+  .controls{ padding:6px 20px 20px; }
+  .ctrl-row{
+    display:flex; align-items:center; gap:12px;
+    margin-top:16px;
+  }
+  .ctrl-row label{
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:11px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    width:56px;
+    flex-shrink:0;
+  }
+  input[type=range]{
+    flex:1;
+    -webkit-appearance:none;
+    height:6px;
+    border-radius:3px;
+    background:#33363f;
+    outline:none;
+    padding:14px 0;
+    background-clip:content-box;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:24px; height:24px;
+    border-radius:50%;
+    background:var(--amber);
+    cursor:pointer;
+    box-shadow:0 0 0 3px rgba(227,168,87,0.15);
+    margin-top:0;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:24px; height:24px; border:none; border-radius:50%;
+    background:var(--amber); cursor:pointer;
+  }
+  input[type=range]::-moz-range-track{
+    height:6px; border-radius:3px; background:#33363f;
+  }
+  .ctrl-val{
+    font-family:'Space Mono', monospace;
+    font-size:12.5px;
+    color:var(--text);
+    width:52px;
+    text-align:right;
+    flex-shrink:0;
+  }
+
+  .status-bar{
+    display:flex; align-items:center; gap:6px;
+    justify-content:center;
+    padding:0 20px 18px;
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    color:var(--text-muted);
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--text-muted);
+  }
+  .dot.live{ background:var(--green); box-shadow:0 0 6px var(--green); }
+  .dot.pausegap{ background:var(--amber); box-shadow:0 0 6px var(--amber); }
+
+  @media (prefers-reduced-motion: reduce){
+    .reel{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+  <div class="brand">
+    <span class="name">無限リピーター</span>
+    <span class="model">MODEL LL-∞</span>
+  </div>
+
+  <div class="reel-bay">
+    <div class="tape-path"></div>
+    <div class="reel" id="reelL"><div class="hub"></div></div>
+    <div class="reel" id="reelR"><div class="hub"></div></div>
+  </div>
+
+  <div class="window">
+    <div class="track-name empty" id="trackName">ファイル未選択</div>
+    <div>
+      <span class="counter-label">LOOP</span>
+      <span class="counter" id="loopCount">0000</span>
+    </div>
+  </div>
+
+  <div class="section script-section">
+    <div class="section-label-row">
+      <div class="section-label">台本</div>
+      <button class="eye-btn" id="scriptToggle" title="台本の表示/非表示">
+        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
+    <div class="script-wrap" id="scriptWrap">
+      <textarea id="scriptArea" placeholder="ここに台本を貼り付けると、この音声ファイルに紐づけて自動保存されます"></textarea>
+      <div class="script-saved-hint" id="scriptHint">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">音声ファイル</div>
+    <label class="dropzone" id="dropzone">
+      MP3などをドラッグ&ドロップ、またはクリックして選択(複数可)
+      <input type="file" id="fileInput" accept="audio/*" multiple>
+    </label>
+    <ul class="playlist" id="playlist"></ul>
+    <div class="empty-msg" id="emptyMsg">まだファイルがありません</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label-row">
+      <div class="section-label">保存済みセット</div>
+      <span class="set-hint" id="setsHint">&nbsp;</span>
+    </div>
+    <button class="save-set-btn" id="saveSetBtn">現在のプレイリストをセットとして保存</button>
+    <ul class="playlist sets-list" id="setsList"></ul>
+    <div class="empty-msg" id="setsEmptyMsg">保存済みセットはまだありません</div>
+  </div>
+
+  <div class="loop-toggle">
+    <button class="chip on" id="modeSingle">この1曲を無限リピート</button>
+    <button class="chip" id="modeAll">リスト全体を通しでリピート</button>
+  </div>
+
+  <div class="transport">
+    <button class="btn-round" id="prevBtn" title="前の曲">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zM20 6v12L9 12z"/></svg>
+    </button>
+    <button class="btn-round btn-play" id="playBtn" title="再生/一時停止">
+      <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="btn-round" id="nextBtn" title="次の曲">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM4 6v12l11-6z"/></svg>
+    </button>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-row">
+      <label>速度</label>
+      <input type="range" id="speedRange" min="0.5" max="8" step="0.05" value="1">
+      <span class="ctrl-val" id="speedVal">1.00x</span>
+    </div>
+    <div class="ctrl-row">
+      <label>間隔</label>
+      <input type="range" id="pauseRange" min="0" max="5" step="0.5" value="0.5">
+      <span class="ctrl-val" id="pauseVal">0.5秒</span>
+    </div>
+  </div>
+
+  <div class="status-bar">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">停止中</span>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">セット名を入力</div>
+    <div class="modal-msg" id="modalMsg"></div>
+    <input type="text" id="modalInput" class="modal-input" placeholder="例: レッスン1">
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" id="modalCancel">キャンセル</button>
+      <button class="modal-btn modal-ok" id="modalOk">保存</button>
+    </div>
+  </div>
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+(() => {
+  const audio = document.getElementById('audio');
+  const fileInput = document.getElementById('fileInput');
+  const dropzone = document.getElementById('dropzone');
+  const playlistEl = document.getElementById('playlist');
+  const emptyMsg = document.getElementById('emptyMsg');
+  const trackName = document.getElementById('trackName');
+  const loopCountEl = document.getElementById('loopCount');
+  const playBtn = document.getElementById('playBtn');
+  const playIcon = document.getElementById('playIcon');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const modeSingleBtn = document.getElementById('modeSingle');
+  const modeAllBtn = document.getElementById('modeAll');
+  const speedRange = document.getElementById('speedRange');
+  const speedVal = document.getElementById('speedVal');
+  const pauseRange = document.getElementById('pauseRange');
+  const pauseVal = document.getElementById('pauseVal');
+  const reelL = document.getElementById('reelL');
+  const reelR = document.getElementById('reelR');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const scriptArea = document.getElementById('scriptArea');
+  const scriptWrap = document.getElementById('scriptWrap');
+  const scriptToggle = document.getElementById('scriptToggle');
+  const eyeIcon = document.getElementById('eyeIcon');
+  const scriptHint = document.getElementById('scriptHint');
+  const saveSetBtn = document.getElementById('saveSetBtn');
+  const setsListEl = document.getElementById('setsList');
+  const setsEmptyMsg = document.getElementById('setsEmptyMsg');
+  const setsHint = document.getElementById('setsHint');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalMsg = document.getElementById('modalMsg');
+  const modalInput = document.getElementById('modalInput');
+  const modalOk = document.getElementById('modalOk');
+  const modalCancel = document.getElementById('modalCancel');
+
+  function showModal(opts){
+    return new Promise((resolve) => {
+      modalTitle.textContent = opts.title || '';
+      modalMsg.textContent = opts.message || '';
+      modalInput.style.display = opts.showInput ? 'block' : 'none';
+      modalInput.value = opts.inputValue || '';
+      modalOk.textContent = opts.okLabel || 'OK';
+      modalOk.classList.toggle('danger', !!opts.danger);
+      modalCancel.textContent = opts.cancelLabel || 'キャンセル';
+      modalOverlay.classList.add('open');
+      if (opts.showInput){
+        setTimeout(() => { modalInput.focus(); modalInput.select(); }, 60);
+      }
+
+      function cleanup(result){
+        modalOverlay.classList.remove('open');
+        modalOk.removeEventListener('click', onOk);
+        modalCancel.removeEventListener('click', onCancel);
+        modalInput.removeEventListener('keydown', onKey);
+        resolve(result);
+      }
+      function onOk(){
+        cleanup(opts.showInput ? modalInput.value.trim() : true);
+      }
+      function onCancel(){
+        cleanup(opts.showInput ? null : false);
+      }
+      function onKey(e){
+        if (e.key === 'Enter') onOk();
+      }
+      modalOk.addEventListener('click', onOk);
+      modalCancel.addEventListener('click', onCancel);
+      modalInput.addEventListener('keydown', onKey);
+    });
+  }
+
+  let playlist = []; // {name, url}
+  let currentIndex = -1;
+  let loopMode = 'single'; // 'single' | 'all'
+  let loopCount = 0;
+  let isPlaying = false;
+  let gapTimer = null;
+  let scriptVisible = true;
+  let scriptHintTimer = null;
+
+  const SCRIPT_KEY_PREFIX = 'loopplayer_script_';
+  const EYE_OPEN = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
+  const EYE_CLOSED = '<path d="M2 12s4-7 10-7c1.6 0 3 .3 4.3.9M22 12s-1.6 2.8-4.3 4.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/>';
+
+  function scriptKeyFor(name){ return SCRIPT_KEY_PREFIX + name; }
+
+  function loadScriptFor(name){
+    try{
+      const v = localStorage.getItem(scriptKeyFor(name));
+      scriptArea.value = v || '';
+    }catch(e){
+      scriptArea.value = '';
+    }
+  }
+
+  function saveScriptFor(name, text){
+    try{
+      if (text){
+        localStorage.setItem(scriptKeyFor(name), text);
+      } else {
+        localStorage.removeItem(scriptKeyFor(name));
+      }
+      scriptHint.textContent = '保存しました';
+      clearTimeout(scriptHintTimer);
+      scriptHintTimer = setTimeout(() => { scriptHint.textContent = '\u00a0'; }, 1500);
+    }catch(e){
+      scriptHint.textContent = '保存できませんでした';
+    }
+  }
+
+  scriptArea.addEventListener('input', () => {
+    if (currentIndex === -1) return;
+    saveScriptFor(playlist[currentIndex].name, scriptArea.value);
+  });
+
+  scriptToggle.addEventListener('click', () => {
+    scriptVisible = !scriptVisible;
+    scriptWrap.classList.toggle('collapsed', !scriptVisible);
+    scriptToggle.classList.toggle('active', scriptVisible);
+    eyeIcon.innerHTML = scriptVisible ? EYE_OPEN : EYE_CLOSED;
+  });
+  scriptToggle.classList.add('active');
+
+  const ICON_PLAY = '<path d="M8 5v14l11-7z"/>';
+  const ICON_PAUSE = '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
+
+  function pad4(n){ return String(n).padStart(4,'0'); }
+
+  function renderPlaylist(){
+    playlistEl.innerHTML = '';
+    emptyMsg.style.display = playlist.length ? 'none' : 'block';
+    playlist.forEach((item, i) => {
+      const li = document.createElement('li');
+      if (i === currentIndex) li.classList.add('active');
+      li.innerHTML = `<span class="idx">${pad4(i+1).slice(-2)}</span><span class="lname">${item.name}</span><button class="del" data-i="${i}" title="削除">✕</button>`;
+      li.addEventListener('click', (e) => {
+        if (e.target.closest('.del')) return;
+        loadTrack(i, true);
+      });
+      playlistEl.appendChild(li);
+    });
+    playlistEl.querySelectorAll('.del').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeTrack(parseInt(btn.dataset.i, 10));
+      });
+    });
+  }
+
+  function addFiles(fileList){
+    const files = Array.from(fileList).filter(f => f.type.startsWith('audio/'));
+    files.forEach(f => {
+      playlist.push({ name: f.name, url: URL.createObjectURL(f), file: f, type: f.type || 'audio/mpeg' });
+    });
+    renderPlaylist();
+    if (currentIndex === -1 && playlist.length) {
+      loadTrack(0, false);
+    }
+  }
+
+  function removeTrack(i){
+    const wasCurrent = (i === currentIndex);
+    URL.revokeObjectURL(playlist[i].url);
+    playlist.splice(i, 1);
+    if (i < currentIndex) currentIndex--;
+    if (wasCurrent){
+      clearGapTimer();
+      audio.pause();
+      isPlaying = false;
+      updatePlayIcon();
+      if (playlist.length){
+        loadTrack(Math.min(i, playlist.length - 1), false);
+      } else {
+        currentIndex = -1;
+        trackName.textContent = 'ファイル未選択';
+        trackName.classList.add('empty');
+        loopCount = 0;
+        loopCountEl.textContent = pad4(0);
+        scriptArea.value = '';
+        setStatus('idle');
+      }
+    }
+    renderPlaylist();
+  }
+
+  // ---- Sets (named playlists saved with audio + scripts) via IndexedDB ----
+  const DB_NAME = 'loopPlayerDB';
+  const STORE_NAME = 'sets';
+
+  function idbOpen(){
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB){ reject(new Error('IndexedDB not available')); return; }
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)){
+          db.createObjectStore(STORE_NAME, { keyPath: 'name' });
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function idbSaveSet(name, tracks){
+    const db = await idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).put({ name, tracks, updatedAt: Date.now() });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function idbGetAllSets(){
+    const db = await idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const req = tx.objectStore(STORE_NAME).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function idbDeleteSet(name){
+    const db = await idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      tx.objectStore(STORE_NAME).delete(name);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  function flashSetsHint(msg){
+    setsHint.textContent = msg;
+    clearTimeout(flashSetsHint._t);
+    flashSetsHint._t = setTimeout(() => { setsHint.textContent = '\u00a0'; }, 2000);
+  }
+
+  function scriptTextFor(name){
+    try{ return localStorage.getItem(scriptKeyFor(name)) || ''; }
+    catch(e){ return ''; }
+  }
+
+  async function saveCurrentAsSet(){
+    if (!playlist.length){
+      flashSetsHint('先に音声ファイルを読み込んでください');
+      return;
+    }
+    const defaultName = 'レッスン' + (Date.now() % 1000);
+    const name = await showModal({
+      title: 'セット名を入力',
+      showInput: true,
+      inputValue: defaultName,
+      okLabel: '保存',
+      cancelLabel: 'キャンセル'
+    });
+    if (!name) return;
+    const tracks = playlist.map(item => ({
+      name: item.name,
+      type: item.type || (item.file && item.file.type) || 'audio/mpeg',
+      blob: item.file,
+      script: scriptTextFor(item.name)
+    }));
+    try{
+      await idbSaveSet(name, tracks);
+      flashSetsHint('保存しました: ' + name);
+      await renderSetsList();
+    }catch(e){
+      flashSetsHint('保存に失敗しました: ' + (e && e.message ? e.message : '不明なエラー'));
+    }
+  }
+
+  async function loadSetByName(name, rec){
+    if (!rec) return;
+    clearGapTimer();
+    audio.pause();
+    isPlaying = false;
+    updatePlayIcon();
+    playlist.forEach(p => { try{ URL.revokeObjectURL(p.url); }catch(e){} });
+    playlist = [];
+    currentIndex = -1;
+    (rec.tracks || []).forEach(t => {
+      const url = URL.createObjectURL(t.blob);
+      playlist.push({ name: t.name, url, file: t.blob, type: t.type });
+      try{ localStorage.setItem(scriptKeyFor(t.name), t.script || ''); }catch(e){}
+    });
+    renderPlaylist();
+    if (playlist.length){
+      loadTrack(0, false);
+    }
+    flashSetsHint('読み込みました: ' + name);
+  }
+
+  async function deleteSetByName(name){
+    const ok = await showModal({
+      title: '削除しますか?',
+      message: '「' + name + '」を削除します。この操作は取り消せません。',
+      showInput: false,
+      okLabel: '削除',
+      cancelLabel: 'キャンセル',
+      danger: true
+    });
+    if (!ok) return;
+    try{
+      await idbDeleteSet(name);
+      flashSetsHint('削除しました: ' + name);
+      await renderSetsList();
+    }catch(e){
+      flashSetsHint('削除に失敗しました');
+    }
+  }
+
+  async function renderSetsList(){
+    let sets = [];
+    try{ sets = await idbGetAllSets(); }catch(e){ sets = []; }
+    sets.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+    setsListEl.innerHTML = '';
+    setsEmptyMsg.style.display = sets.length ? 'none' : 'block';
+    sets.forEach(s => {
+      const li = document.createElement('li');
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'lname';
+      nameSpan.textContent = s.name;
+
+      const countSpan = document.createElement('span');
+      countSpan.className = 'set-count';
+      countSpan.textContent = (s.tracks ? s.tracks.length : 0) + '曲';
+
+      const loadBtn = document.createElement('button');
+      loadBtn.className = 'set-load';
+      loadBtn.textContent = '読込';
+      loadBtn.addEventListener('click', () => loadSetByName(s.name, s));
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del';
+      delBtn.title = '削除';
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteSetByName(s.name); });
+
+      li.appendChild(nameSpan);
+      li.appendChild(countSpan);
+      li.appendChild(loadBtn);
+      li.appendChild(delBtn);
+      setsListEl.appendChild(li);
+    });
+  }
+
+  saveSetBtn.addEventListener('click', saveCurrentAsSet);
+
+  function loadTrack(i, autoplay){
+    if (i < 0 || i >= playlist.length) return;
+    clearGapTimer();
+    currentIndex = i;
+    loopCount = 0;
+    loopCountEl.textContent = pad4(0);
+    audio.src = playlist[i].url;
+    audio.playbackRate = parseFloat(speedRange.value);
+    trackName.textContent = playlist[i].name;
+    trackName.classList.remove('empty');
+    loadScriptFor(playlist[i].name);
+    renderPlaylist();
+    if (autoplay || isPlaying){
+      audio.play().then(() => {
+        isPlaying = true;
+        updatePlayIcon();
+        setStatus('playing');
+      }).catch(() => {});
+    }
+  }
+
+  function updatePlayIcon(){
+    playIcon.innerHTML = isPlaying ? ICON_PAUSE : ICON_PLAY;
+    reelL.classList.toggle('spinning', isPlaying);
+    reelR.classList.toggle('spinning', isPlaying);
+  }
+
+  function setStatus(state){
+    if (state === 'playing'){
+      statusDot.className = 'dot live';
+      statusText.textContent = '再生中';
+    } else if (state === 'gap'){
+      statusDot.className = 'dot pausegap';
+      statusText.textContent = '次のリピートまで待機中…';
+    } else {
+      statusDot.className = 'dot';
+      statusText.textContent = '停止中';
+    }
+  }
+
+  function clearGapTimer(){
+    if (gapTimer){ clearTimeout(gapTimer); gapTimer = null; }
+  }
+
+  function togglePlay(){
+    if (!playlist.length) return;
+    if (currentIndex === -1) loadTrack(0, true);
+    if (isPlaying){
+      clearGapTimer();
+      audio.pause();
+      isPlaying = false;
+      updatePlayIcon();
+      setStatus('idle');
+    } else {
+      audio.play().then(() => {
+        isPlaying = true;
+        updatePlayIcon();
+        setStatus('playing');
+      }).catch(() => {});
+    }
+  }
+
+  function goNext(fromEnd){
+    if (!playlist.length) return;
+    let ni = currentIndex + 1;
+    if (ni >= playlist.length){
+      if (loopMode === 'all'){
+        ni = 0;
+      } else {
+        return; // shouldn't hit in manual next beyond list without wrap; wrap anyway
+      }
+    }
+    loadTrack(ni, true);
+  }
+
+  function goPrev(){
+    if (!playlist.length) return;
+    let pi = currentIndex - 1;
+    if (pi < 0) pi = playlist.length - 1;
+    loadTrack(pi, true);
+  }
+
+  audio.addEventListener('ended', () => {
+    if (!isPlaying) return;
+    const gapSec = parseFloat(pauseRange.value);
+
+    const proceed = () => {
+      if (loopMode === 'single'){
+        loopCount++;
+        loopCountEl.textContent = pad4(loopCount);
+        audio.currentTime = 0;
+        audio.play().then(() => setStatus('playing')).catch(() => {});
+      } else {
+        // whole playlist mode
+        if (currentIndex === playlist.length - 1){
+          loopCount++;
+          loopCountEl.textContent = pad4(loopCount);
+          loadTrack(0, true);
+        } else {
+          loadTrack(currentIndex + 1, true);
+        }
+      }
+    };
+
+    if (gapSec > 0){
+      setStatus('gap');
+      reelL.classList.remove('spinning');
+      reelR.classList.remove('spinning');
+      gapTimer = setTimeout(() => {
+        gapTimer = null;
+        if (isPlaying){
+          reelL.classList.add('spinning');
+          reelR.classList.add('spinning');
+          proceed();
+        }
+      }, gapSec * 1000);
+    } else {
+      proceed();
+    }
+  });
+
+  playBtn.addEventListener('click', togglePlay);
+  nextBtn.addEventListener('click', () => goNext(false));
+  prevBtn.addEventListener('click', goPrev);
+
+  modeSingleBtn.addEventListener('click', () => {
+    loopMode = 'single';
+    modeSingleBtn.classList.add('on');
+    modeAllBtn.classList.remove('on');
+  });
+  modeAllBtn.addEventListener('click', () => {
+    loopMode = 'all';
+    modeAllBtn.classList.add('on');
+    modeSingleBtn.classList.remove('on');
+  });
+
+  speedRange.addEventListener('input', () => {
+    const v = parseFloat(speedRange.value);
+    speedVal.textContent = v.toFixed(2) + 'x';
+    audio.playbackRate = v;
+  });
+  pauseRange.addEventListener('input', () => {
+    const v = parseFloat(pauseRange.value);
+    pauseVal.textContent = (v === 0 ? '0秒(間なし)' : v + '秒');
+  });
+
+  fileInput.addEventListener('change', (e) => addFiles(e.target.files));
+
+  ['dragover','dragenter'].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropzone.classList.add('drag');
+    });
+  });
+  ['dragleave','drop'].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag');
+    });
+  });
+  dropzone.addEventListener('drop', (e) => {
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  });
+
+  // init
+  pauseVal.textContent = '0.5秒';
+  renderSetsList();
+})();
+</script>
+</body>
+</html>
