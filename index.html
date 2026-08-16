@@ -62,8 +62,6 @@
     .section{ padding:12px 16px; }
     .transport{ gap:18px; padding:16px 16px 4px; }
     .controls{ padding:6px 16px 18px; }
-    .loop-toggle{ padding:8px 16px 4px; }
-    .chip{ flex:1; text-align:center; }
   }
   .brand{
     display:flex;
@@ -246,127 +244,23 @@
     min-height:14px;
   }
 
-  /* Sets */
-  .set-hint{
-    font-family:'Space Mono', monospace;
-    font-size:10.5px;
-    color:var(--green);
-  }
-  .save-set-btn{
+  /* Copy-script button */
+  .copy-script-btn{
     width:100%;
-    padding:12px 14px;
-    min-height:44px;
+    margin-top:10px;
+    padding:13px 14px;
+    min-height:46px;
     border-radius:10px;
     border:1px solid var(--amber-dim);
     background:rgba(227,168,87,0.06);
     color:var(--amber);
     font-family:'Barlow Condensed', sans-serif;
-    font-size:14px;
-    letter-spacing:0.04em;
+    font-size:14.5px;
+    letter-spacing:0.03em;
     cursor:pointer;
   }
-  .save-set-btn:active{ background:rgba(227,168,87,0.14); }
-  .sets-list{ max-height:none; }
-  .sets-list li{
-    cursor:default;
-  }
-  .sets-list .lname{ font-size:14px; color:var(--text); }
-  .set-count{
-    font-family:'Space Mono', monospace;
-    font-size:11px;
-    color:var(--text-muted);
-    flex-shrink:0;
-    margin-right:4px;
-  }
-  .set-load{
-    font-family:'Barlow Condensed', sans-serif;
-    font-size:12.5px;
-    letter-spacing:0.04em;
-    padding:8px 12px;
-    min-height:36px;
-    border-radius:8px;
-    border:1px solid var(--green-dim);
-    background:rgba(143,191,109,0.08);
-    color:var(--green);
-    cursor:pointer;
-    flex-shrink:0;
-  }
-  .set-load:active{ background:rgba(143,191,109,0.18); }
+  .copy-script-btn:active{ background:rgba(227,168,87,0.14); }
 
-  /* Modal (replaces native prompt/confirm which can be blocked in some webviews) */
-  .modal-overlay{
-    position:fixed; inset:0;
-    background:rgba(8,8,10,0.62);
-    display:flex; align-items:center; justify-content:center;
-    padding:20px;
-    z-index:1000;
-    opacity:0; pointer-events:none;
-    transition:opacity 0.15s ease;
-  }
-  .modal-overlay.open{ opacity:1; pointer-events:auto; }
-  .modal-box{
-    width:100%; max-width:340px;
-    background:var(--panel);
-    border:1px solid #33363f;
-    border-radius:14px;
-    padding:20px;
-    box-shadow:0 20px 50px rgba(0,0,0,0.5);
-  }
-  .modal-title{
-    font-family:'Barlow Condensed', sans-serif;
-    font-size:16px;
-    letter-spacing:0.04em;
-    color:var(--text);
-    margin-bottom:6px;
-  }
-  .modal-msg{
-    font-size:13px;
-    color:var(--text-muted);
-    margin-bottom:12px;
-    line-height:1.5;
-  }
-  .modal-msg:empty{ display:none; }
-  .modal-input{
-    width:100%;
-    background:var(--groove);
-    border:1px solid #2a2c33;
-    border-radius:8px;
-    padding:12px 12px;
-    min-height:44px;
-    color:var(--text);
-    font-size:15px;
-    font-family:'Noto Sans JP', sans-serif;
-    outline:none;
-    margin-bottom:16px;
-  }
-  .modal-input:focus{ border-color:var(--amber-dim); }
-  .modal-actions{
-    display:flex; gap:10px;
-  }
-  .modal-btn{
-    flex:1;
-    padding:12px;
-    min-height:44px;
-    border-radius:8px;
-    font-family:'Barlow Condensed', sans-serif;
-    font-size:14px;
-    letter-spacing:0.04em;
-    border:1px solid #3a3d47;
-    cursor:pointer;
-  }
-  .modal-cancel{
-    background:transparent;
-    color:var(--text-muted);
-  }
-  .modal-ok{
-    background:var(--amber);
-    color:#1a1509;
-    border-color:transparent;
-    font-weight:600;
-  }
-  .modal-ok.danger{
-    background:var(--red);
-  }
   .dropzone{
     border:1.5px dashed #3a3d47;
     border-radius:10px;
@@ -387,6 +281,26 @@
   }
   .dropzone:active{ background:rgba(227,168,87,0.08); }
   .dropzone input{ display:none; }
+
+  .big-dropzone{
+    flex-direction:column;
+    gap:10px;
+    padding:34px 16px;
+    min-height:120px;
+    border-width:2px;
+    border-radius:14px;
+  }
+  .dropzone-icon{
+    width:34px; height:34px;
+    color:var(--amber);
+    flex-shrink:0;
+  }
+  .dropzone-label{
+    font-family:'Barlow Condensed', sans-serif;
+    font-size:17px;
+    letter-spacing:0.03em;
+    color:var(--text);
+  }
 
   .playlist{
     list-style:none; margin:10px 0 0; padding:0;
@@ -456,30 +370,6 @@
   .btn-play:hover{ border-color:transparent; filter:brightness(1.08); }
   .btn-play svg, .btn-round svg{ width:20px; height:20px; }
   .btn-play svg{ width:26px; height:26px; }
-
-  .loop-toggle{
-    display:flex; justify-content:center; gap:8px;
-    padding:10px 16px 4px;
-    flex-wrap:wrap;
-  }
-  .chip{
-    font-family:'Barlow Condensed', sans-serif;
-    font-size:12.5px;
-    letter-spacing:0.06em;
-    text-transform:uppercase;
-    padding:10px 14px;
-    min-height:40px;
-    border-radius:999px;
-    border:1px solid #3a3d47;
-    color:var(--text-muted);
-    cursor:pointer;
-    background:transparent;
-  }
-  .chip.on{
-    border-color:var(--green);
-    color:var(--green);
-    background:rgba(143,191,109,0.08);
-  }
 
   /* Sliders */
   .controls{ padding:6px 20px 20px; }
@@ -584,34 +474,21 @@
       </button>
     </div>
     <div class="script-wrap" id="scriptWrap">
-      <textarea id="scriptArea" placeholder="ここに台本を貼り付けると、この音声ファイルに紐づけて自動保存されます"></textarea>
+      <textarea id="scriptArea" placeholder="ここに台本を貼り付けてください"></textarea>
+      <button class="copy-script-btn" id="copyScriptBtn">台本をコピーして音読さんを開く</button>
       <div class="script-saved-hint" id="scriptHint">&nbsp;</div>
     </div>
   </div>
 
   <div class="section">
     <div class="section-label">音声ファイル</div>
-    <label class="dropzone" id="dropzone">
-      MP3などをドラッグ&ドロップ、またはクリックして選択(複数可)
+    <label class="dropzone big-dropzone" id="dropzone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropzone-icon"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <span class="dropzone-label">音読さんで作ったMP3を選ぶ</span>
       <input type="file" id="fileInput" accept="audio/*" multiple>
     </label>
     <ul class="playlist" id="playlist"></ul>
     <div class="empty-msg" id="emptyMsg">まだファイルがありません</div>
-  </div>
-
-  <div class="section">
-    <div class="section-label-row">
-      <div class="section-label">保存済みセット</div>
-      <span class="set-hint" id="setsHint">&nbsp;</span>
-    </div>
-    <button class="save-set-btn" id="saveSetBtn">現在のプレイリストをセットとして保存</button>
-    <ul class="playlist sets-list" id="setsList"></ul>
-    <div class="empty-msg" id="setsEmptyMsg">保存済みセットはまだありません</div>
-  </div>
-
-  <div class="loop-toggle">
-    <button class="chip on" id="modeSingle">この1曲を無限リピート</button>
-    <button class="chip" id="modeAll">リスト全体を通しでリピート</button>
   </div>
 
   <div class="transport">
@@ -645,18 +522,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-box">
-    <div class="modal-title" id="modalTitle">セット名を入力</div>
-    <div class="modal-msg" id="modalMsg"></div>
-    <input type="text" id="modalInput" class="modal-input" placeholder="例: レッスン1">
-    <div class="modal-actions">
-      <button class="modal-btn modal-cancel" id="modalCancel">キャンセル</button>
-      <button class="modal-btn modal-ok" id="modalOk">保存</button>
-    </div>
-  </div>
-</div>
-
 <audio id="audio"></audio>
 
 <script>
@@ -672,8 +537,6 @@
   const playIcon = document.getElementById('playIcon');
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
-  const modeSingleBtn = document.getElementById('modeSingle');
-  const modeAllBtn = document.getElementById('modeAll');
   const speedRange = document.getElementById('speedRange');
   const speedVal = document.getElementById('speedVal');
   const pauseRange = document.getElementById('pauseRange');
@@ -687,96 +550,24 @@
   const scriptToggle = document.getElementById('scriptToggle');
   const eyeIcon = document.getElementById('eyeIcon');
   const scriptHint = document.getElementById('scriptHint');
-  const saveSetBtn = document.getElementById('saveSetBtn');
-  const setsListEl = document.getElementById('setsList');
-  const setsEmptyMsg = document.getElementById('setsEmptyMsg');
-  const setsHint = document.getElementById('setsHint');
-  const modalOverlay = document.getElementById('modalOverlay');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalMsg = document.getElementById('modalMsg');
-  const modalInput = document.getElementById('modalInput');
-  const modalOk = document.getElementById('modalOk');
-  const modalCancel = document.getElementById('modalCancel');
-
-  function showModal(opts){
-    return new Promise((resolve) => {
-      modalTitle.textContent = opts.title || '';
-      modalMsg.textContent = opts.message || '';
-      modalInput.style.display = opts.showInput ? 'block' : 'none';
-      modalInput.value = opts.inputValue || '';
-      modalOk.textContent = opts.okLabel || 'OK';
-      modalOk.classList.toggle('danger', !!opts.danger);
-      modalCancel.textContent = opts.cancelLabel || 'キャンセル';
-      modalOverlay.classList.add('open');
-      if (opts.showInput){
-        setTimeout(() => { modalInput.focus(); modalInput.select(); }, 60);
-      }
-
-      function cleanup(result){
-        modalOverlay.classList.remove('open');
-        modalOk.removeEventListener('click', onOk);
-        modalCancel.removeEventListener('click', onCancel);
-        modalInput.removeEventListener('keydown', onKey);
-        resolve(result);
-      }
-      function onOk(){
-        cleanup(opts.showInput ? modalInput.value.trim() : true);
-      }
-      function onCancel(){
-        cleanup(opts.showInput ? null : false);
-      }
-      function onKey(e){
-        if (e.key === 'Enter') onOk();
-      }
-      modalOk.addEventListener('click', onOk);
-      modalCancel.addEventListener('click', onCancel);
-      modalInput.addEventListener('keydown', onKey);
-    });
-  }
+  const copyScriptBtn = document.getElementById('copyScriptBtn');
 
   let playlist = []; // {name, url}
   let currentIndex = -1;
-  let loopMode = 'single'; // 'single' | 'all'
   let loopCount = 0;
   let isPlaying = false;
   let gapTimer = null;
   let scriptVisible = true;
   let scriptHintTimer = null;
 
-  const SCRIPT_KEY_PREFIX = 'loopplayer_script_';
   const EYE_OPEN = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
   const EYE_CLOSED = '<path d="M2 12s4-7 10-7c1.6 0 3 .3 4.3.9M22 12s-1.6 2.8-4.3 4.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/>';
 
-  function scriptKeyFor(name){ return SCRIPT_KEY_PREFIX + name; }
-
-  function loadScriptFor(name){
-    try{
-      const v = localStorage.getItem(scriptKeyFor(name));
-      scriptArea.value = v || '';
-    }catch(e){
-      scriptArea.value = '';
-    }
+  function flashScriptHint(msg){
+    scriptHint.textContent = msg;
+    clearTimeout(scriptHintTimer);
+    scriptHintTimer = setTimeout(() => { scriptHint.textContent = '\u00a0'; }, 2000);
   }
-
-  function saveScriptFor(name, text){
-    try{
-      if (text){
-        localStorage.setItem(scriptKeyFor(name), text);
-      } else {
-        localStorage.removeItem(scriptKeyFor(name));
-      }
-      scriptHint.textContent = '保存しました';
-      clearTimeout(scriptHintTimer);
-      scriptHintTimer = setTimeout(() => { scriptHint.textContent = '\u00a0'; }, 1500);
-    }catch(e){
-      scriptHint.textContent = '保存できませんでした';
-    }
-  }
-
-  scriptArea.addEventListener('input', () => {
-    if (currentIndex === -1) return;
-    saveScriptFor(playlist[currentIndex].name, scriptArea.value);
-  });
 
   scriptToggle.addEventListener('click', () => {
     scriptVisible = !scriptVisible;
@@ -785,6 +576,36 @@
     eyeIcon.innerHTML = scriptVisible ? EYE_OPEN : EYE_CLOSED;
   });
   scriptToggle.classList.add('active');
+
+  function copyTextToClipboard(text){
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).catch(() => {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+  function fallbackCopy(text){
+    try{
+      scriptArea.focus();
+      scriptArea.select();
+      document.execCommand('copy');
+    }catch(e){ /* ignore */ }
+  }
+
+  copyScriptBtn.addEventListener('click', () => {
+    const text = scriptArea.value.trim();
+    if (!text){
+      flashScriptHint('先に台本を貼り付けてください');
+      return;
+    }
+    // Open first so the new tab is still tied to this tap (avoids popup blocking),
+    // then copy. The current tab's script text is untouched either way.
+    copyTextToClipboard(scriptArea.value);
+    window.open('https://ondoku3.com/ja/', '_blank');
+    flashScriptHint('コピーしました');
+  });
 
   const ICON_PLAY = '<path d="M8 5v14l11-7z"/>';
   const ICON_PAUSE = '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
@@ -841,179 +662,11 @@
         trackName.classList.add('empty');
         loopCount = 0;
         loopCountEl.textContent = pad4(0);
-        scriptArea.value = '';
         setStatus('idle');
       }
     }
     renderPlaylist();
   }
-
-  // ---- Sets (named playlists saved with audio + scripts) via IndexedDB ----
-  const DB_NAME = 'loopPlayerDB';
-  const STORE_NAME = 'sets';
-
-  function idbOpen(){
-    return new Promise((resolve, reject) => {
-      if (!window.indexedDB){ reject(new Error('IndexedDB not available')); return; }
-      const req = indexedDB.open(DB_NAME, 1);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if (!db.objectStoreNames.contains(STORE_NAME)){
-          db.createObjectStore(STORE_NAME, { keyPath: 'name' });
-        }
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  }
-
-  async function idbSaveSet(name, tracks){
-    const db = await idbOpen();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      tx.objectStore(STORE_NAME).put({ name, tracks, updatedAt: Date.now() });
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
-  async function idbGetAllSets(){
-    const db = await idbOpen();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const req = tx.objectStore(STORE_NAME).getAll();
-      req.onsuccess = () => resolve(req.result || []);
-      req.onerror = () => reject(req.error);
-    });
-  }
-
-  async function idbDeleteSet(name){
-    const db = await idbOpen();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      tx.objectStore(STORE_NAME).delete(name);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
-  function flashSetsHint(msg){
-    setsHint.textContent = msg;
-    clearTimeout(flashSetsHint._t);
-    flashSetsHint._t = setTimeout(() => { setsHint.textContent = '\u00a0'; }, 2000);
-  }
-
-  function scriptTextFor(name){
-    try{ return localStorage.getItem(scriptKeyFor(name)) || ''; }
-    catch(e){ return ''; }
-  }
-
-  async function saveCurrentAsSet(){
-    if (!playlist.length){
-      flashSetsHint('先に音声ファイルを読み込んでください');
-      return;
-    }
-    const defaultName = 'レッスン' + (Date.now() % 1000);
-    const name = await showModal({
-      title: 'セット名を入力',
-      showInput: true,
-      inputValue: defaultName,
-      okLabel: '保存',
-      cancelLabel: 'キャンセル'
-    });
-    if (!name) return;
-    const tracks = playlist.map(item => ({
-      name: item.name,
-      type: item.type || (item.file && item.file.type) || 'audio/mpeg',
-      blob: item.file,
-      script: scriptTextFor(item.name)
-    }));
-    try{
-      await idbSaveSet(name, tracks);
-      flashSetsHint('保存しました: ' + name);
-      await renderSetsList();
-    }catch(e){
-      flashSetsHint('保存に失敗しました: ' + (e && e.message ? e.message : '不明なエラー'));
-    }
-  }
-
-  async function loadSetByName(name, rec){
-    if (!rec) return;
-    clearGapTimer();
-    audio.pause();
-    isPlaying = false;
-    updatePlayIcon();
-    playlist.forEach(p => { try{ URL.revokeObjectURL(p.url); }catch(e){} });
-    playlist = [];
-    currentIndex = -1;
-    (rec.tracks || []).forEach(t => {
-      const url = URL.createObjectURL(t.blob);
-      playlist.push({ name: t.name, url, file: t.blob, type: t.type });
-      try{ localStorage.setItem(scriptKeyFor(t.name), t.script || ''); }catch(e){}
-    });
-    renderPlaylist();
-    if (playlist.length){
-      loadTrack(0, false);
-    }
-    flashSetsHint('読み込みました: ' + name);
-  }
-
-  async function deleteSetByName(name){
-    const ok = await showModal({
-      title: '削除しますか?',
-      message: '「' + name + '」を削除します。この操作は取り消せません。',
-      showInput: false,
-      okLabel: '削除',
-      cancelLabel: 'キャンセル',
-      danger: true
-    });
-    if (!ok) return;
-    try{
-      await idbDeleteSet(name);
-      flashSetsHint('削除しました: ' + name);
-      await renderSetsList();
-    }catch(e){
-      flashSetsHint('削除に失敗しました');
-    }
-  }
-
-  async function renderSetsList(){
-    let sets = [];
-    try{ sets = await idbGetAllSets(); }catch(e){ sets = []; }
-    sets.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-    setsListEl.innerHTML = '';
-    setsEmptyMsg.style.display = sets.length ? 'none' : 'block';
-    sets.forEach(s => {
-      const li = document.createElement('li');
-
-      const nameSpan = document.createElement('span');
-      nameSpan.className = 'lname';
-      nameSpan.textContent = s.name;
-
-      const countSpan = document.createElement('span');
-      countSpan.className = 'set-count';
-      countSpan.textContent = (s.tracks ? s.tracks.length : 0) + '曲';
-
-      const loadBtn = document.createElement('button');
-      loadBtn.className = 'set-load';
-      loadBtn.textContent = '読込';
-      loadBtn.addEventListener('click', () => loadSetByName(s.name, s));
-
-      const delBtn = document.createElement('button');
-      delBtn.className = 'del';
-      delBtn.title = '削除';
-      delBtn.textContent = '✕';
-      delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteSetByName(s.name); });
-
-      li.appendChild(nameSpan);
-      li.appendChild(countSpan);
-      li.appendChild(loadBtn);
-      li.appendChild(delBtn);
-      setsListEl.appendChild(li);
-    });
-  }
-
-  saveSetBtn.addEventListener('click', saveCurrentAsSet);
 
   function loadTrack(i, autoplay){
     if (i < 0 || i >= playlist.length) return;
@@ -1025,7 +678,6 @@
     audio.playbackRate = parseFloat(speedRange.value);
     trackName.textContent = playlist[i].name;
     trackName.classList.remove('empty');
-    loadScriptFor(playlist[i].name);
     renderPlaylist();
     if (autoplay || isPlaying){
       audio.play().then(() => {
@@ -1079,14 +731,8 @@
 
   function goNext(fromEnd){
     if (!playlist.length) return;
-    let ni = currentIndex + 1;
-    if (ni >= playlist.length){
-      if (loopMode === 'all'){
-        ni = 0;
-      } else {
-        return; // shouldn't hit in manual next beyond list without wrap; wrap anyway
-      }
-    }
+    const ni = currentIndex + 1;
+    if (ni >= playlist.length) return;
     loadTrack(ni, true);
   }
 
@@ -1102,21 +748,10 @@
     const gapSec = parseFloat(pauseRange.value);
 
     const proceed = () => {
-      if (loopMode === 'single'){
-        loopCount++;
-        loopCountEl.textContent = pad4(loopCount);
-        audio.currentTime = 0;
-        audio.play().then(() => setStatus('playing')).catch(() => {});
-      } else {
-        // whole playlist mode
-        if (currentIndex === playlist.length - 1){
-          loopCount++;
-          loopCountEl.textContent = pad4(loopCount);
-          loadTrack(0, true);
-        } else {
-          loadTrack(currentIndex + 1, true);
-        }
-      }
+      loopCount++;
+      loopCountEl.textContent = pad4(loopCount);
+      audio.currentTime = 0;
+      audio.play().then(() => setStatus('playing')).catch(() => {});
     };
 
     if (gapSec > 0){
@@ -1139,17 +774,6 @@
   playBtn.addEventListener('click', togglePlay);
   nextBtn.addEventListener('click', () => goNext(false));
   prevBtn.addEventListener('click', goPrev);
-
-  modeSingleBtn.addEventListener('click', () => {
-    loopMode = 'single';
-    modeSingleBtn.classList.add('on');
-    modeAllBtn.classList.remove('on');
-  });
-  modeAllBtn.addEventListener('click', () => {
-    loopMode = 'all';
-    modeAllBtn.classList.add('on');
-    modeSingleBtn.classList.remove('on');
-  });
 
   speedRange.addEventListener('input', () => {
     const v = parseFloat(speedRange.value);
@@ -1181,7 +805,6 @@
 
   // init
   pauseVal.textContent = '0.5秒';
-  renderSetsList();
 })();
 </script>
 </body>
