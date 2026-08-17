@@ -244,23 +244,6 @@
     min-height:14px;
   }
 
-  /* Copy-script button */
-  .copy-script-btn{
-    width:100%;
-    margin-top:10px;
-    padding:13px 14px;
-    min-height:46px;
-    border-radius:10px;
-    border:1px solid var(--amber-dim);
-    background:rgba(227,168,87,0.06);
-    color:var(--amber);
-    font-family:'Barlow Condensed', sans-serif;
-    font-size:14.5px;
-    letter-spacing:0.03em;
-    cursor:pointer;
-  }
-  .copy-script-btn:active{ background:rgba(227,168,87,0.14); }
-
   .dropzone{
     border:1.5px dashed #3a3d47;
     border-radius:10px;
@@ -478,8 +461,6 @@
     </div>
     <div class="script-wrap" id="scriptWrap">
       <textarea id="scriptArea" placeholder="ここに台本を貼り付けてください"></textarea>
-      <button class="copy-script-btn" id="copyScriptBtn">台本をコピーして音読さんを開く</button>
-      <div class="script-saved-hint" id="scriptHint">&nbsp;</div>
     </div>
   </div>
 
@@ -552,8 +533,6 @@
   const scriptWrap = document.getElementById('scriptWrap');
   const scriptToggle = document.getElementById('scriptToggle');
   const eyeIcon = document.getElementById('eyeIcon');
-  const scriptHint = document.getElementById('scriptHint');
-  const copyScriptBtn = document.getElementById('copyScriptBtn');
 
   let playlist = []; // {name, url}
   let currentIndex = -1;
@@ -561,16 +540,9 @@
   let isPlaying = false;
   let gapTimer = null;
   let scriptVisible = true;
-  let scriptHintTimer = null;
 
   const EYE_OPEN = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
   const EYE_CLOSED = '<path d="M2 12s4-7 10-7c1.6 0 3 .3 4.3.9M22 12s-1.6 2.8-4.3 4.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/>';
-
-  function flashScriptHint(msg){
-    scriptHint.textContent = msg;
-    clearTimeout(scriptHintTimer);
-    scriptHintTimer = setTimeout(() => { scriptHint.textContent = '\u00a0'; }, 2000);
-  }
 
   scriptToggle.addEventListener('click', () => {
     scriptVisible = !scriptVisible;
@@ -579,36 +551,6 @@
     eyeIcon.innerHTML = scriptVisible ? EYE_OPEN : EYE_CLOSED;
   });
   scriptToggle.classList.add('active');
-
-  function copyTextToClipboard(text){
-    if (navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(text).catch(() => {
-        fallbackCopy(text);
-      });
-    } else {
-      fallbackCopy(text);
-    }
-  }
-  function fallbackCopy(text){
-    try{
-      scriptArea.focus();
-      scriptArea.select();
-      document.execCommand('copy');
-    }catch(e){ /* ignore */ }
-  }
-
-  copyScriptBtn.addEventListener('click', () => {
-    const text = scriptArea.value.trim();
-    if (!text){
-      flashScriptHint('先に台本を貼り付けてください');
-      return;
-    }
-    // Open first so the new tab is still tied to this tap (avoids popup blocking),
-    // then copy. The current tab's script text is untouched either way.
-    copyTextToClipboard(scriptArea.value);
-    window.open('https://ondoku3.com/ja/', '_blank');
-    flashScriptHint('コピーしました');
-  });
 
   const ICON_PLAY = '<path d="M8 5v14l11-7z"/>';
   const ICON_PAUSE = '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>';
@@ -652,6 +594,7 @@
     URL.revokeObjectURL(playlist[i].url);
     playlist.splice(i, 1);
     if (i < currentIndex) currentIndex--;
+    scriptArea.value = '';
     if (wasCurrent){
       clearGapTimer();
       audio.pause();
