@@ -456,12 +456,11 @@
       <div class="section-label">台本</div>
       <button class="eye-btn" id="scriptToggle" title="台本の表示/非表示">
         <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
-          <circle cx="12" cy="12" r="3"/>
+          <path d="M2 12s4-7 10-7c1.6 0 3 .3 4.3.9M22 12s-1.6 2.8-4.3 4.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/>
         </svg>
       </button>
     </div>
-    <div class="script-wrap" id="scriptWrap">
+    <div class="script-wrap collapsed" id="scriptWrap">
       <textarea id="scriptArea" placeholder="ここに台本を貼り付けてください"></textarea>
     </div>
   </div>
@@ -541,7 +540,7 @@
   let loopCount = 0;
   let isPlaying = false;
   let gapTimer = null;
-  let scriptVisible = true;
+  let scriptVisible = false;
 
   const EYE_OPEN = '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>';
   const EYE_CLOSED = '<path d="M2 12s4-7 10-7c1.6 0 3 .3 4.3.9M22 12s-1.6 2.8-4.3 4.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="M3 3l18 18"/>';
@@ -551,8 +550,8 @@
     scriptWrap.classList.toggle('collapsed', !scriptVisible);
     scriptToggle.classList.toggle('active', scriptVisible);
     eyeIcon.innerHTML = scriptVisible ? EYE_OPEN : EYE_CLOSED;
+    if (scriptVisible) autoGrowScript();
   });
-  scriptToggle.classList.add('active');
 
   function autoGrowScript(){
     scriptArea.style.height = 'auto';
