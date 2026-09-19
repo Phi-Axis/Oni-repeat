@@ -572,7 +572,25 @@
     playlist.forEach((item, i) => {
       const li = document.createElement('li');
       if (i === currentIndex) li.classList.add('active');
-      li.innerHTML = `<span class="idx">${pad4(i+1).slice(-2)}</span><span class="lname">${item.name}</span><button class="del" data-i="${i}" title="削除">✕</button>`;
+
+      const idxSpan = document.createElement('span');
+      idxSpan.className = 'idx';
+      idxSpan.textContent = pad4(i+1).slice(-2);
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'lname';
+      nameSpan.textContent = item.name;
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del';
+      delBtn.title = '削除';
+      delBtn.dataset.i = i;
+      delBtn.textContent = '✕';
+
+      li.appendChild(idxSpan);
+      li.appendChild(nameSpan);
+      li.appendChild(delBtn);
+
       li.addEventListener('click', (e) => {
         if (e.target.closest('.del')) return;
         loadTrack(i, true);
